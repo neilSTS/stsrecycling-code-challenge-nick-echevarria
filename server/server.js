@@ -1,5 +1,4 @@
 const express = require('express');
-// const cors = require('cors');
 const PORT = 3000;
 
 const app = express();
@@ -12,54 +11,24 @@ app.get('/followers/:githubId', async (req, res) => {
 
   try {
     const response = await helpers.fetchFollowers(githubId);
-    // Construct first version of followerIds 
-    // NOTE: Refactor to be recursive
-    const initialFollowers = await helpers.constructFollowers(response);
+    // TODO: Refactor to be recursive
+    const initialFollowers = await helpers.constructFollowerObject(response);
+    let followerCount = initialFollowers[1];
     //check if followerCount is less than 100 OR that we're 4 layers deep to determin another fetchFollowers call
-    // for (let i = 0; i < initialFollowers.length; i++) {
-    //   let follower = initialFollowers[i];
-    //   console.log(follower);
-    //   if (!follower.followers) { 
-    //     const response = await helpers.fetchFollowers(follower.followerId); 
-    //     const newFollowers = await helpers.constructFollowers(response); 
-    //   }
-      
-    // }
+    for (const follower in initialFollowers[0]) {
+      if (!initialFollowers[0][follower] && followerCount < 100) {
+        const response = await helpers.fetchFollowers(follower);
+        const newFollowers = await helpers.constructFollowerObject(response);
 
-    return res.status(200).json(initialFollowers);
+        initialFollowers[0][follower] = newFollowers[0];
+        followerCount += newFollowers[1];
+      }  
+    }
+
+    return res.status(200).json(initialFollowers[0]);
   } catch (err) {
     console.log(err);
   }
 });
 
 app.listen(PORT, () => console.log(`API Server is listening on port: ${PORT}`));
-
-/*
- {
-  "sam": {
-    "greg": null, 
-    "prudence": null
-  },
-  "eric": {
-    "greg": null, 
-    "prudence": null
-  },
-  "luke":{
-    "greg": null, 
-    "prudence": null
-  },
-  "rachel": null,
-  "austin": null,
-  "michonne": null,
-  "ariel": {
-    "greg": null, 
-    "prudence": {
-      "greg": null, 
-      "prudence": null
-    }
-  },
-  "ursula": null,
-  "fabio": null,
-  "gretchen": null,
- }
-  */

@@ -21,7 +21,7 @@ const helpers = {
       }
     }
   },
-  constructFollowers: (followers) => {
+  constructFollowerObject: (followers) => {
     const updatedFollowers = {};
     //populate initial followers
     for (let i = 0; i < followers.length; i++) {
@@ -29,7 +29,7 @@ const helpers = {
       updatedFollowers[followerId] = null;
     }
 
-    return updatedFollowers;
+    return [updatedFollowers, followers.length];
   },
 };
 
