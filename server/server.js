@@ -4,21 +4,24 @@ const PORT = 3000;
 const app = express();
 app.use(express.json());
 
-const helpers = require('./utils/helpers');
+const HELPERS = require('./utils/helpers');
 
 app.get('/followers/:githubId', async (req, res) => {
   let { githubId } = req.params;
 
   try {
-    const response = await helpers.fetchFollowers(githubId);
+    const response = await HELPERS.fetchFollowers(githubId);
+
     // TODO: Refactor to be recursive
-    const initialFollowers = await helpers.constructFollowerObject(response);
+    const initialFollowers = await HELPERS.constructFollowerObject(response);
+    
     let followerCount = initialFollowers[1];
-    //check if followerCount is less than 100 OR that we're 4 layers deep to determin another fetchFollowers call
+
+    //check if followerCount is less than 100 OR that we're 4 layers deep to determine another fetchFollowers call
     for (const follower in initialFollowers[0]) {
       if (!initialFollowers[0][follower] && followerCount < 100) {
-        const response = await helpers.fetchFollowers(follower);
-        const newFollowers = await helpers.constructFollowerObject(response);
+        const response = await HELPERS.fetchFollowers(follower);
+        const newFollowers = await HELPERS.constructFollowerObject(response);
 
         initialFollowers[0][follower] = newFollowers[0];
         followerCount += newFollowers[1];

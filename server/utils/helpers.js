@@ -1,24 +1,17 @@
 const HEADERS = require('./github');
 
-let followersCache = {};
-
-const helpers = {
+const HELPERS = {
   fetchFollowers: async (githubId) => {
-    if (followersCache[githubId]) {
-      console.log("USING CACHE");
-      return followersCache[githubId];
-    } else {
-      try {
-        const githubFollowersAPI = `https://api.github.com/users/${githubId}/followers`;
-        const githubResponse = await fetch(githubFollowersAPI, HEADERS);
-        const data = await githubResponse.json();
+    //NOTE: Employ a caching solution to limit the number of API calls
+    try {
+      const githubFollowersAPI = `https://api.github.com/users/${githubId}/followers`;
+      
+      const githubResponse = await fetch(githubFollowersAPI, HEADERS);
+      const data = await githubResponse.json();
 
-        followersCache[githubId] = data; 
-
-        return data;
-      } catch (err) {
-        console.log('Error triggered in fetchFollowers function');
-      }
+      return data;
+    } catch (err) {
+      console.log('Error triggered in fetchFollowers function');
     }
   },
   constructFollowerObject: (followers) => {
@@ -33,4 +26,4 @@ const helpers = {
   },
 };
 
-module.exports = helpers;
+module.exports = HELPERS;
