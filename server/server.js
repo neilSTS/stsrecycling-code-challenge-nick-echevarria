@@ -1,5 +1,6 @@
 const express = require('express');
-const PORT = 3000;
+require('dotenv').config();
+const PORT = process.env.PORT || 3000;
 
 const app = express();
 app.use(express.json());
@@ -14,7 +15,7 @@ app.get('/followers/:githubId', async (req, res) => {
 
     // TODO: Refactor to be recursive
     const initialFollowers = await HELPERS.constructFollowerObject(response);
-    
+
     let followerCount = initialFollowers[1];
 
     //check if followerCount is less than 100 OR that we're 4 layers deep to determine another fetchFollowers call
@@ -25,7 +26,7 @@ app.get('/followers/:githubId', async (req, res) => {
 
         initialFollowers[0][follower] = newFollowers[0];
         followerCount += newFollowers[1];
-      }  
+      }
     }
 
     return res.status(200).json(initialFollowers[0]);

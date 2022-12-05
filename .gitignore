@@ -9,3 +9,6 @@ node_modules
 
 # Ignore file with Github token
 server/utils/github.js
+
+# Ignore .env
+.env

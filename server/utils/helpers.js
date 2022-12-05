@@ -1,11 +1,17 @@
-const HEADERS = require('./github');
+const GITHUB_ACCESS_TOKEN = process.env.GITHUB_ACCESS_TOKEN
+
+const HEADERS = {
+  headers: {
+    Authorization: GITHUB_ACCESS_TOKEN,
+  },
+};
 
 const HELPERS = {
   fetchFollowers: async (githubId) => {
     //NOTE: Employ a caching solution to limit the number of API calls
     try {
       const githubFollowersAPI = `https://api.github.com/users/${githubId}/followers`;
-      
+
       const githubResponse = await fetch(githubFollowersAPI, HEADERS);
       const data = await githubResponse.json();
 
