@@ -1,38 +1,33 @@
 const express = require('express');
+const cors = require('cors');
 require('dotenv').config();
-const PORT = process.env.PORT || 3000;
+const followersRouter = require('./routes/followersRouter');
 
 const app = express();
+
+const PORT = process.env.PORT || 3000;
+
 app.use(express.json());
+app.options('*', cors);
 
-const HELPERS = require('./utils/helpers');
+app.use('/v1', followersRouter);
 
-app.get('/followers/:githubId', async (req, res) => {
-  let { githubId } = req.params;
+// Handle unknown routes
+app.use((req, res) => res.sendStatus(404));
 
-  try {
-    const response = await HELPERS.fetchFollowers(githubId);
-
-    // TODO: Refactor to be recursive
-    const initialFollowers = await HELPERS.constructFollowerObject(response);
-
-    let followerCount = initialFollowers[1];
-
-    //check if followerCount is less than 100 OR that we're 4 layers deep to determine another fetchFollowers call
-    for (const follower in initialFollowers[0]) {
-      if (!initialFollowers[0][follower] && followerCount < 100) {
-        const response = await HELPERS.fetchFollowers(follower);
-        const newFollowers = await HELPERS.constructFollowerObject(response);
-
-        initialFollowers[0][follower] = newFollowers[0];
-        followerCount += newFollowers[1];
-      }
-    }
-
-    return res.status(200).json(initialFollowers[0]);
-  } catch (err) {
-    console.log(err);
-  }
+// Global Express Handler
+app.use((err, req, res, next) => {
+  const defaultErr = {
+    log: "Express' global error handler has triggered",
+    status: 400,
+    message: { err: 'An error occurred' },
+  };
+  const errorObj = Object.assign({}, defaultErr, {
+    message: { err: err.message },
+  });
+  const errorStatus = err.status || 500;
+  console.log('The global error is being invoked');
+  return res.status(errorStatus).send(errorObj.message);
 });
 
 app.listen(PORT, () => console.log(`API Server is listening on port: ${PORT}`));

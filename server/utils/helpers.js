@@ -1,34 +1,21 @@
-const GITHUB_ACCESS_TOKEN = process.env.GITHUB_ACCESS_TOKEN
-
-const HEADERS = {
-  headers: {
-    Authorization: GITHUB_ACCESS_TOKEN,
-  },
-};
+const GITHUB_ACCESS_TOKEN = process.env.GITHUB_ACCESS_TOKEN;
 
 const HELPERS = {
-  fetchFollowers: async (githubId) => {
-    //NOTE: Employ a caching solution to limit the number of API calls
-    try {
-      const githubFollowersAPI = `https://api.github.com/users/${githubId}/followers`;
-
-      const githubResponse = await fetch(githubFollowersAPI, HEADERS);
-      const data = await githubResponse.json();
-
-      return data;
-    } catch (err) {
-      console.log('Error triggered in fetchFollowers function');
-    }
+  createError: (errInfo) => {
+    const { location, method, err } = errInfo;
+    return {
+      log: `${location}.${method} : ERROR: ${
+        typeof err === 'object' ? JSON.stringify(err) : err
+      }`,
+      message: {
+        err: `Error occurrentGithubIded in ${location}.${method}. Check server logs for more details.`,
+      },
+    };
   },
-  constructFollowerObject: (followers) => {
-    const updatedFollowers = {};
-    //populate initial followers
-    for (let i = 0; i < followers.length; i++) {
-      let followerId = followers[i].login;
-      updatedFollowers[followerId] = null;
-    }
-
-    return [updatedFollowers, followers.length];
+  HEADER: {
+    headers: {
+      Authorization: GITHUB_ACCESS_TOKEN,
+    },
   },
 };
 
